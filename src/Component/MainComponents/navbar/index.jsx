@@ -1,11 +1,19 @@
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { ChevronDownIcon } from "@heroicons/react/24/outline";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUser } from "@fortawesome/free-solid-svg-icons";
+import { toast } from "react-toastify";
+import { useSelector } from 'react-redux';
 
+import CurrencyConverter from "../../MainComponents/CurrencyConverter";
+import Cart from "../../MainComponents/Cart";
 const Navbar = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
   const cartItems = useSelector((state) => state.cart.items);
   const itemCount = cartItems.length;
-
 
   useEffect(() => {
     axios.get("http://localhost:5000/me", { withCredentials: true })
@@ -14,16 +22,33 @@ const Navbar = () => {
   }, []);
 
   const handleCartClick = () => {
+    const user = JSON.parse(localStorage.getItem("user"));
+
     if (!user) {
       toast.error("Please sign in first.");
-      navigate("/signin");
+      setTimeout(() => {
+        navigate("/signin");
+      }, 3000);
       return;
     }
+
     setIsCartOpen(true);
   };
 
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    setUser(storedUser);
+
+    const handleStorageChange = () => {
+      setUser(JSON.parse(localStorage.getItem("user")));
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
   const handleLogout = () => {
-    axios.post("http://localhost:5000/logout", {}, { withCredentials: true });
+    localStorage.removeItem("user");
     setUser(null);
     navigate("/signin");
   };
