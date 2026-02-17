@@ -15,7 +15,11 @@ const Navbar = () => {
   const cartItems = useSelector((state) => state.cart.items);
   const itemCount = cartItems.length;
 
-
+  useEffect(() => {
+    axios.get("http://localhost:5000/me", { withCredentials: true })
+      .then(res => setUser(res.data.user))
+      .catch(() => setUser(null));
+  }, []);
 
   const handleCartClick = () => {
     const user = JSON.parse(localStorage.getItem("user"));
